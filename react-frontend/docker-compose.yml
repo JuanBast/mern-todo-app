@@ -1,0 +1,12 @@
+version: '2'
+services:
+  frontend:
+    build: .
+    command: bash -c "cd /app/frontend && npm start"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    environment: 
+      - NODE_ENV=development
+    stdin_open: true
