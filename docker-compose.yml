@@ -45,3 +45,6 @@ services:
     stdin_open: true
     depends_on:
       - backend
+# Limpiar el sistema de imagenes y volumenes en dangling
+# Imagenes: docker system prune
+# Volumes: docker volume rm `docker volume ls -q -f dangling=true`
