@@ -1,17 +1,24 @@
-version: '2'
+version: '2.4'
 services:
 
   mongo:
-    image: mongo
+    build: ./mongo-db/mongo
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      timeout: 45s
+      interval: 10s
+      retries: 10
     restart: always
     # environment:
     #   MONGO_INITDB_ROOT_USERNAME: root
     #   MONGO_INITDB_ROOT_PASSWORD: example
+    volumes: 
+      - ./mongo-data:/data/db:delegated
     ports: 
         - "27017:27017"
 
   mongo-express:
-    image: mongo-express
+    build: ./mongo-db/mongo-express
     restart: always
     ports:
       - 8081:8081
@@ -19,17 +26,24 @@ services:
     #   ME_CONFIG_MONGODB_ADMINUSERNAME: root
     #   ME_CONFIG_MONGODB_ADMINPASSWORD: example
     depends_on: 
-        - mongo
+      mongo:
+        condition: service_healthy
 
   backend:
     build: ./node-backend/
-    command: /app/backend/node_modules/.bin/nodemon /app/backend/server.js
+    healthcheck:
+      test: curl http://127.0.0.1:6200
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    command: /app/backend/node_modules/.bin/nodemon /app/backend/index.js
     ports:
       - "6200:6200"
     volumes:
       - ./node-backend:/app
     environment: 
       - NODE_ENV=development
+      - PORT=6200
     depends_on:
       - mongo
 

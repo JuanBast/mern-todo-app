@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const todoRoutes = express.Router();
+const logger = require('./config/logger');
 const PORT = 6200;
 
 let Todo = require('./todo.model');
@@ -21,13 +22,14 @@ mongoose.connect(
 const connection = mongoose.connection;
 
 connection.once('open', function() {
-    console.log("MongoDB database connection established successfully");
+    logger.info("MongoDB database connection established successfully");
 })
 
 todoRoutes.route('/').get(function(req, res) {
     Todo.find(function(err, todos) {
         if (err) {
-            console.log(err);
+            // console.log(err);
+            logger.error(err);
         } else {
             res.json(todos);
         }
@@ -69,7 +71,8 @@ todoRoutes.route('/add').post(function(req, res) {
             res.status(200).json({'todo': 'todo added successfully'});
         })
         .catch(err => {
-            console.log("Error:" + err);
+            // console.log("Error:" + err);
+            logger.error(err);
             res.status(400).send('adding new todo failed');
         });
 });
@@ -77,5 +80,21 @@ todoRoutes.route('/add').post(function(req, res) {
 app.use('/todos', todoRoutes);
 
 app.listen(PORT, function() {
-    console.log("Server is running on Port: " + PORT);
+    logger.info("Server is running on Port: " + PORT);
+
+    logger.error("Esto es un error");
+    // error: 0,
+    logger.warn("Esto es un warn");
+    // warn: 1,
+    logger.info("Esto es un info");
+    // info: 2,
+    logger.http("Esto es un http");
+    // http: 3,
+    logger.verbose("Esto es un verbose");
+    // verbose: 4,
+    logger.debug("Esto es un debug");
+    // debug: 5,
+    logger.silly("Esto es un silly");
+    // silly: 6
+
 });
